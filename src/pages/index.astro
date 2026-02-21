@@ -1,0 +1,262 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { projects } from '../data/projects';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<Layout title="Vivek Banzade | Portfolio" description="Portfolio showcasing projects, tools, and markdown blogs.">
+  <section id="about" class="hero section">
+    <h1>Vivek Banzade</h1>
+    <div class="hero-copy">
+      <p class="lead">
+        <span
+          id="typed-line"
+          data-text="Software Developer who vibe-coded this entire website into existence."
+        >
+          Software Developer who vibe-coded this entire website into existence.
+        </span>
+        <span class="typing-cursor" aria-hidden="true"></span>
+        <br />
+        But at least the blogs are 100% me.
+      </p>
+      <p class="social-row">
+        <a href="mailto:banzade98@gmail.com">Email</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/banzade" target="_blank" rel="noreferrer">GitHub</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://www.linkedin.com/in/vivek-banzade" target="_blank" rel="noreferrer">LinkedIn</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section writing">
+    <div class="section-head">
+      <h2>Projects</h2>
+    </div>
+    <ul class="entry-list">
+      {projects.map((project) => (
+        <li class="entry-item">
+          <a class="entry-title" href={project.link}>{project.name}</a>
+          <p class="entry-desc">{project.description}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="section writing">
+    <div class="section-head">
+      <h2>Writing</h2>
+      <a href="/blog">All posts</a>
+    </div>
+    <ul class="entry-list">
+      {posts.length === 0 ? (
+        <li>No posts yet.</li>
+      ) : (
+        posts.map((post) => (
+          <li class="entry-item">
+            <p class="entry-meta">{post.data.date.toLocaleDateString('en-US', { dateStyle: 'long' })}</p>
+            <a class="entry-title" href={`/blog/${post.slug}/`}>
+              {post.data.title}
+            </a>
+            <p class="entry-desc">{post.data.description}</p>
+          </li>
+        ))
+      )}
+    </ul>
+  </section>
+</Layout>
+
+<script is:inline>
+  (() => {
+    const typedLine = document.getElementById('typed-line');
+    if (!typedLine) return;
+
+    const text = typedLine.getAttribute('data-text') || typedLine.textContent || '';
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reduceMotion) {
+      typedLine.textContent = text;
+      return;
+    }
+
+    typedLine.textContent = '';
+    let charIndex = 0;
+
+    const typeNext = () => {
+      charIndex += 1;
+      typedLine.textContent = text.slice(0, charIndex);
+      if (charIndex < text.length) {
+        window.setTimeout(typeNext, 24);
+      } else {
+        document.documentElement.classList.add('typing-finished');
+      }
+    };
+
+    typeNext();
+  })();
+</script>
+
+<style>
+  .section {
+    padding: 2.6rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .hero {
+    border-top: 0;
+    padding-top: 0.6rem;
+  }
+
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 5vw, 3.2rem);
+    letter-spacing: -0.02em;
+  }
+
+  .hero-copy {
+    margin-top: 0.85rem;
+    padding-left: 0.95rem;
+    border-left: 1px solid var(--line);
+  }
+
+  .lead {
+    margin: 0;
+    color: var(--muted);
+    max-width: 64ch;
+    font-size: 1.05rem;
+    line-height: 1.45;
+  }
+
+  .social-row {
+    margin: 1.2rem 0 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .social-row a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .social-row a:hover {
+    color: var(--accent);
+  }
+
+  .typing-cursor {
+    display: inline-block;
+    width: 1px;
+    height: 1.1em;
+    margin-left: 0.25rem;
+    transform: translateY(0.15em);
+    background: var(--muted);
+    animation: blink 0.9s step-end infinite;
+  }
+
+  :global(.typing-finished) .typing-cursor {
+    animation: none;
+    opacity: 0.35;
+  }
+
+  .writing {
+    margin-top: 0;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .section-head h2 {
+    margin: 0;
+    font-size: clamp(1.7rem, 3vw, 2rem);
+  }
+
+  .section-head a {
+    color: var(--accent);
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+
+  .entry-list {
+    list-style: none;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .entry-item {
+    padding: 0.35rem 0 0.35rem 1rem;
+    border-left: 1px solid var(--line);
+  }
+
+  .entry-title {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    font-size: clamp(1.22rem, 2.1vw, 1.5rem);
+  }
+
+  .entry-title:hover {
+    color: var(--accent);
+  }
+
+  .entry-meta {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .entry-title + .entry-desc,
+  .entry-meta + .entry-title {
+    margin-top: 0.3rem;
+  }
+
+  .entry-desc {
+    margin: 0.3rem 0 0;
+    color: var(--muted);
+    max-width: 72ch;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .section {
+      padding: 2rem 0;
+    }
+
+    .hero {
+      padding-top: 0.2rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 10vw, 2.5rem);
+    }
+
+    .hero-copy {
+      padding-left: 0.72rem;
+    }
+
+    .writing {
+      margin-top: 1.2rem;
+    }
+
+    .entry-item {
+      padding-left: 0.75rem;
+    }
+  }
+</style>

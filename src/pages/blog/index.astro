@@ -1,0 +1,85 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<Layout title="Blog | Vivek Banzade" description="Markdown posts about projects, tools, and learning.">
+  <section class="blog-page">
+    <h1>Blog</h1>
+    <p class="intro">Notes, logs, and things learned while building. Or Whatever, I liked that particular day :)</p>
+
+    <ul class="post-list">
+      {posts.length === 0 ? (
+        <li>No posts yet.</li>
+      ) : (
+        posts.map((post) => (
+          <li>
+            <span>{post.data.date.toLocaleDateString('en-US', { dateStyle: 'medium' })}</span>
+            <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
+          </li>
+        ))
+      )}
+    </ul>
+  </section>
+</Layout>
+
+<style>
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+  }
+
+  .intro {
+    margin: 0.5rem 0 0;
+    color: var(--muted);
+  }
+
+  .post-list {
+    list-style: none;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .post-list li {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0.8rem;
+    align-items: baseline;
+    padding: 0.65rem 0;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .post-list li:last-child {
+    border-bottom: 0;
+  }
+
+  .post-list span {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  }
+
+  .post-list a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .post-list a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.12em;
+  }
+
+  @media (max-width: 760px) {
+    .post-list li {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+    }
+  }
+</style>

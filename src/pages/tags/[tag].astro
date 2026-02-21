@@ -1,0 +1,112 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { toTagSlug } from '../../utils/tags';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const tagMap = new Map<string, { label: string; posts: typeof posts }>();
+
+  for (const post of posts) {
+    for (const rawTag of post.data.tags) {
+      const slug = toTagSlug(rawTag);
+      if (!slug) continue;
+
+      const existing = tagMap.get(slug);
+      if (existing) {
+        existing.posts.push(post);
+      } else {
+        tagMap.set(slug, { label: rawTag, posts: [post] });
+      }
+    }
+  }
+
+  return Array.from(tagMap.entries()).map(([slug, data]) => ({
+    params: { tag: slug },
+    props: {
+      tagSlug: slug,
+      tagLabel: data.label,
+      posts: data.posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+    },
+  }));
+}
+
+const { tagLabel, posts } = Astro.props;
+---
+
+<Layout
+  title={`Tag: ${tagLabel} | Vivek Banzade`}
+  description={`Posts tagged with ${tagLabel}.`}
+>
+  <section class="tag-page">
+    <p class="meta">Tag Archive</p>
+    <h1>#{tagLabel}</h1>
+    <p class="intro">Posts related to this tag.</p>
+
+    <ul class="post-list">
+      {posts.map((post) => (
+        <li>
+          <span>{post.data.date.toLocaleDateString('en-US', { dateStyle: 'medium' })}</span>
+          <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Layout>
+
+<style>
+  h1 {
+    margin: 0;
+    font-size: clamp(1.9rem, 4vw, 2.4rem);
+  }
+
+  .intro {
+    margin: 0.45rem 0 0;
+    color: var(--muted);
+  }
+
+  .post-list {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .post-list li {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0.8rem;
+    align-items: baseline;
+    padding: 0.65rem 0;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .post-list li:last-child {
+    border-bottom: 0;
+  }
+
+  .post-list span {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  }
+
+  .post-list a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .post-list a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.12em;
+  }
+
+  @media (max-width: 760px) {
+    .post-list li {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+    }
+  }
+</style>
