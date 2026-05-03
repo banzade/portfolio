@@ -2,21 +2,6 @@
 
 Simple portfolio + Markdown blog built with Astro.
 
-## Hosting on Cloudflare Pages (free)
-
-### One-time setup
-
-1. Push this project to a GitHub repository.
-2. In Cloudflare Dashboard, go to `Workers & Pages` -> `Create` -> `Pages` -> `Connect to Git`.
-3. Select your repo and configure build settings:
-   - Framework preset: `Astro`
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-4. Click `Save and Deploy`.
-5. Optional: attach your custom domain in the Pages project settings.
-
-After this, every push to your main branch redeploys automatically.
-
 ## Run locally
 
 ```bash
@@ -24,11 +9,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:4321`.
-
 ## Add a new blog post
 
-All blog posts live in:p
+All blog posts live in:
 
 - `src/content/blog/`
 
